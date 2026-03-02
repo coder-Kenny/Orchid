@@ -16,48 +16,48 @@ namespace file_manager {
 
         if (ec) {
             if (ec == std::errc::permission_denied)
-                return FileLoadResult::makeError(FileError::PermissionDenied);
+                return FileLoadResult::failure(FileError::PermissionDenied);
 
-            return FileLoadResult::makeError(FileError::Unknown);
+            return FileLoadResult::failure(FileError::Unknown);
         }
 
         if (status.type() == fs::file_type::not_found) {
-            return FileLoadResult::makeError(FileError::NotFound);
+            return FileLoadResult::failure(FileError::NotFound);
         }
 
         if (status.type() != fs::file_type::regular) {
-            return FileLoadResult::makeError(FileError::Unknown);
+            return FileLoadResult::failure(FileError::Unknown);
         }
 
         const auto size = fs::file_size(path, ec);
 
         if (ec) {
-            return FileLoadResult::makeError(FileError::SizeFailed);
+            return FileLoadResult::failure(FileError::SizeFailed);
         }
 
         if (size == 0) {
-            return FileLoadResult::makeError(FileError::EmptyFile);
+            return FileLoadResult::failure(FileError::EmptyFile);
         }
 
         std::ifstream file(path, std::ios::binary);
         if (!file.is_open()) {
-            return FileLoadResult::makeError(FileError::OpenFailed);
+            return FileLoadResult::failure(FileError::OpenFailed);
         }
 
         std::string content(size, '\0');
         if (!file.read(content.data(), static_cast<std::streamsize>(size))) {
-            return FileLoadResult::makeError(FileError::ReadFailed);
+            return FileLoadResult::failure(FileError::ReadFailed);
         }
 
-        return FileLoadResult::makeSuccess(content, size);
+        return FileLoadResult::success(content, size);
     }
 
     void FileHandler::newFile(const fs::path& path, FileKind kind) {
         FileLoadResult result = loadFile(path);
         if (result.hasError()) {
-            files_.emplace_back(FileData::makeError(path, result.error_));
+            files_.emplace_back(FileData::failure(path, result.error_));
         } else {
-            files_.emplace_back(FileData::makeSuccess(path, result.content_, result.size_, kind));
+            files_.emplace_back(FileData::success(path, result.content_, result.size_, kind));
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace file_manager {
     enum class FileKind {
-        Unknown,
+        Unknown = 0,
         Resource,
         Asset
     };

@@ -10,24 +10,18 @@
 namespace file_manager {
     class FileData {
     public:
-        explicit FileData(std::filesystem::path path,
-                          std::string content,
-                          std::uintmax_t size,
-                          FileError error,
-                          FileKind kind);
-
-        static FileData FileData::makeSuccess(std::filesystem::path path,
-                                       std::string content,
-                                       std::uintmax_t size,
-                                       FileKind kind) {
-            return FileData(path, content, size, FileError::None, kind);
+        [[nodiscard]] static FileData success(std::filesystem::path path,
+                                              std::string content,
+                                              std::uintmax_t size,
+                                              FileKind kind) {
+            return FileData(std::move(path), std::move(content), size, FileError::None, kind);
         }
 
-        static FileData FileData::makeError(std::filesystem::path path, FileError error) {
-            return FileData(path, {}, 0, error, FileKind::Unknown);
+        [[nodiscard]] static FileData failure(std::filesystem::path path, FileError error) {
+            return FileData(std::move(path), {}, 0, error, FileKind::Unknown);
         }
 
-        [[nodiscard]] bool FileData::hasError() const noexcept {
+        [[nodiscard]] bool hasError() const noexcept {
             return error_ != FileError::None;
         }
 
@@ -39,9 +33,20 @@ namespace file_manager {
         [[nodiscard]] FileKind getKind() const noexcept { return kind_; }
 
     private:
+        explicit FileData(std::filesystem::path path,
+                          std::string content,
+                          std::uintmax_t size,
+                          FileError error,
+                          FileKind kind)
+            : path_{std::move(path)},
+              content_{std::move(content)},
+              size_{size},
+              error_{error},
+              kind_{kind} {}
+
         std::filesystem::path path_{};
         std::string content_{};
-        std::uintmax_t size_{0};
+        std::uintmax_t size_{};
         FileError error_{FileError::None};
         FileKind kind_{FileKind::Unknown};
     };

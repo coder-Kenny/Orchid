@@ -10,11 +10,11 @@ namespace file_manager {
         FileError error_{FileError::None};
         std::uintmax_t size_{};
 
-        static FileLoadResult makeError(FileError error) {
+        static FileLoadResult failure(FileError error) {
             return {"", error, 0};
         }
 
-        static FileLoadResult makeSuccess(std::string content, std::uintmax_t size) {
+        static FileLoadResult success(std::string content, std::uintmax_t size) {
             return {std::move(content), FileError::None, size};
         }
 
