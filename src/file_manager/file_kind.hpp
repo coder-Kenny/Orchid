@@ -2,8 +2,18 @@
 
 namespace file_manager {
     enum class FileKind {
-        Unknown = 0,
-        Resource,
-        Asset
+        Resource = 0,
+        Asset,
+        Unknown,
     };
+
+    std::string to_string(FileKind kind) {
+        switch (kind) {
+            case FileKind::Unknown: return "Unknown";
+            case FileKind::Resource: return "Resource";
+            case FileKind::Asset: return "Asset";
+        }
+
+        return "(unhandled FileError value)";
+    }
 }
