@@ -3,51 +3,49 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "file_error.hpp"
 #include "file_kind.hpp"
+#include "file_encoding.hpp"
 
 namespace file_manager {
-    class FileData {
-    public:
-        [[nodiscard]] static FileData success(std::filesystem::path path,
-                                              std::string content,
-                                              std::uintmax_t size,
-                                              FileKind kind) {
-            return FileData(std::move(path), std::move(content), size, FileError::None, kind);
+    struct FileData {
+        FileEncoding encoding = FileEncoding::Unknown;
+        std::string content;
+        std::vector<size_t> line_starts;
+        std::uintmax_t size = 0;
+        FileError error = FileError::None;
+        FileKind kind = FileKind::Unknown;
+
+        static FileData success(FileEncoding encoding,
+                                std::string content,
+                                std::vector<std::size_t> line_starts,
+                                std::uintmax_t size,
+                                FileKind kind) {
+            return FileData{
+                encoding,
+                std::move(content),
+                std::move(line_starts),
+                size,
+                FileError::None,
+                kind
+            };
         }
 
-        [[nodiscard]] static FileData failure(std::filesystem::path path, FileError error) {
-            return FileData(std::move(path), {}, 0, error, FileKind::Unknown);
+        static FileData failure(FileError error) {
+            return FileData{
+                FileEncoding::Unknown,
+                {},
+                {},
+                0,
+                error,
+                FileKind::Unknown
+            };
         }
 
-        [[nodiscard]] bool hasError() const noexcept {
-            return error_ != FileError::None;
+        constexpr bool hasError() const noexcept {
+            return error != FileError::None;
         }
-
-        // Getters
-        [[nodiscard]] std::filesystem::path getPath() const noexcept { return path_; }
-        [[nodiscard]] const std::string& getContent() const noexcept { return content_; }
-        [[nodiscard]] std::uintmax_t getSize() const noexcept { return size_; }
-        [[nodiscard]] FileError getError() const noexcept { return error_; }
-        [[nodiscard]] FileKind getKind() const noexcept { return kind_; }
-
-    private:
-        explicit FileData(std::filesystem::path path,
-                          std::string content,
-                          std::uintmax_t size,
-                          FileError error,
-                          FileKind kind)
-            : path_{std::move(path)},
-              content_{std::move(content)},
-              size_{size},
-              error_{error},
-              kind_{kind} {}
-
-        std::filesystem::path path_{};
-        std::string content_{};
-        std::uintmax_t size_{};
-        FileError error_{FileError::None};
-        FileKind kind_{FileKind::Unknown};
     };
 }

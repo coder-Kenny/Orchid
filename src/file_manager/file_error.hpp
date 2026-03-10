@@ -6,9 +6,12 @@ namespace file_manager {
     enum class FileError {
         None = 0,
 
-        //Path / existence issues
+        // Path / existence issues
         NotFound,
         NotAFile,
+
+        // Encoding issue
+        InvalidEncoding,
 
         // Permission issues
         PermissionDenied,
@@ -19,16 +22,19 @@ namespace file_manager {
         SizeFailed,
         ReadFailed,
 
-        Unknown
+        Unknown,
     };
 
-    inline std::string to_string(FileError error) {
-        switch (error) {
+    inline std::string to_string(FileError err) {
+        switch (err) {
             case FileError::None: return "None";
 
             // Path / existence issues
             case FileError::NotFound: return "NotFound";
             case FileError::NotAFile: return "NotAFile";
+
+            // Encoding issue
+            case FileError::InvalidEncoding: return "InvalidEncoding";
 
             // Permission issues
             case FileError::PermissionDenied: return "PermissionDenied";

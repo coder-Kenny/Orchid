@@ -7,13 +7,13 @@ namespace file_manager {
         Unknown,
     };
 
-    std::string to_string(FileKind kind) {
+    inline std::string to_string(FileKind kind) {
         switch (kind) {
             case FileKind::Unknown: return "Unknown";
             case FileKind::Resource: return "Resource";
             case FileKind::Asset: return "Asset";
         }
 
-        return "(unhandled FileError value)";
+        return "(unhandled FileKind value)";
     }
 }

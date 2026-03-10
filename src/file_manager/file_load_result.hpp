@@ -1,25 +1,43 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "file_error.hpp"
 
 namespace file_manager {
     struct FileLoadResult {
-        std::string content_{};
-        FileError error_{FileError::None};
-        std::uintmax_t size_{};
+        FileEncoding encoding = FileEncoding::Unknown;
+        std::string content;
+        std::vector<size_t> line_starts;
+        std::uintmax_t size = 0;
+        FileError error = FileError::None;
+
+        static FileLoadResult success(FileEncoding encoding,
+                                      std::string content,
+                                      std::vector<size_t> line_starts,
+                                      std::uintmax_t size) {
+            return FileLoadResult{
+                encoding,
+                std::move(content),
+                line_starts,
+                size,
+                FileError::None
+            };
+        }
 
         static FileLoadResult failure(FileError error) {
-            return {"", error, 0};
+            return FileLoadResult{
+                FileEncoding::Unknown,
+                "",
+                {},
+                {},
+                error
+            };
         }
 
-        static FileLoadResult success(std::string content, std::uintmax_t size) {
-            return {std::move(content), FileError::None, size};
-        }
-
-        [[nodiscard]] bool hasError() const {
-            return error_ != FileError::None;
+        bool hasError() const noexcept {
+            return error != FileError::None;
         }
     };
 }
